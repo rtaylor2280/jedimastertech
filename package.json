@@ -1,0 +1,19 @@
+{
+  "name": "jedimastertech",
+  "version": "1.0.0",
+  "description": "A collection of web-based tools for custom lightsaber building and tuning. All tools are responsive and styled for both mobile and desktop use.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "uuid": "^11.1.0",
+    "yt-dlp-exec": "^1.0.2"
+  }
+}
