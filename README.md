@@ -8,7 +8,7 @@ A collection of web-based tools for custom lightsaber building and tuning. All t
 - Sound Capture
 
 ## Usage
-Open `publicindex.html` in your browser or deploy the `public` folder via GitHub Pages or another static host.
+Install dependencies with `npm install` and start the server with `npm start`. The server requires the `yt-dlp` binary in your PATH (on Ubuntu run `sudo apt install yt-dlp`). Open `index.html` in your browser while the server is running to use the tools.
 
 ## Credits
 Created by JediMasterTech
