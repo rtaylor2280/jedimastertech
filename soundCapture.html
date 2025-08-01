@@ -1,0 +1,262 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>YouTube Audio Extractor</title>
+      <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/babel-standalone@7.22.9/babel.min.js"></script>
+      <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 font-sans">
+      <div id="root" class="min-h-screen flex items-center justify-center"></div>
+      <script type="text/babel">
+        function AudioExtractorApp() {
+          const [url, setUrl] = React.useState('');
+          const [format, setFormat] = React.useState('mp3');
+          const [isSaberFont, setIsSaberFont] = React.useState(false);
+          const [startTime, setStartTime] = React.useState('');
+          const [endTime, setEndTime] = React.useState('');
+          const [isLoading, setIsLoading] = React.useState(false);
+          const [error, setError] = React.useState('');
+          const [downloadUrl, setDownloadUrl] = React.useState('');
+
+          // Validate time format (MM:SS or HH:MM:SS)
+          const isValidTime = (time) => {
+            return /^(\d{1,2}):([0-5]\d)$|^(\d{1,2}):([0-5]\d):([0-5]\d)$/.test(time);
+          };
+
+          // Convert time to seconds for validation
+          const timeToSeconds = (time) => {
+            const parts = time.split(':').map(Number);
+            if (parts.length === 2) {
+              return parts[0] * 60 + parts[1];
+            } else if (parts.length === 3) {
+              return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            }
+            return 0;
+          };
+
+          const handleSubmit = (e) => {
+            e.preventDefault();
+            setError('');
+            setDownloadUrl('');
+
+            // Validate URL
+            if (!url || (!url.includes('youtube.com') && !url.includes('youtu.be'))) {
+              setError('Please enter a valid YouTube URL');
+              return;
+            }
+
+            // Validate times
+            if (startTime && !isValidTime(startTime)) {
+              setError('Invalid start time format. Use MM:SS or HH:MM:SS');
+              return;
+            }
+            if (endTime && !isValidTime(endTime)) {
+              setError('Invalid end time format. Use MM:SS or HH:MM:SS');
+              return;
+            }
+            if (startTime && endTime) {
+              const startSeconds = timeToSeconds(startTime);
+              const endSeconds = timeToSeconds(endTime);
+              if (endSeconds <= startSeconds) {
+                setError('End time must be after start time');
+                return;
+              }
+            }
+
+            setIsLoading(true);
+
+            // Simulate audio extraction (replace with actual backend API call)
+            setTimeout(() => {
+              setIsLoading(false);
+              // Mock a downloadable file URL (in reality, this would come from a server)
+              const mockFile = `sample-audio.${format}`;
+              setDownloadUrl(mockFile);
+              const timeInfo = startTime && endTime ? ` (from ${startTime} to ${endTime})` : '';
+              if (format === 'wav' && isSaberFont) {
+                alert(`Simulated: Audio extracted as WAV (Saber Font: PCM, 16-bit, 44.1 kHz, Mono)${timeInfo}`);
+              } else {
+                alert(`Simulated: Audio extracted as ${format.toUpperCase()}${timeInfo}`);
+              }
+            }, 2000);
+          };
+
+          const handleDownload = () => {
+            // Simulate download (replace with actual file download logic)
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `extracted-audio.${format}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          };
+
+          return (
+            <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
+              <h1 className="text-2xl font-bold text-center mb-4">YouTube Audio Extractor</h1>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="url" className="block text-sm font-medium text-gray-700">
+                    YouTube Video URL
+                  </label>
+                  <input
+                    id="url"
+                    type="text"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="Paste YouTube URL here"
+                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+                </div>
+                <div className="flex space-x-4">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      name="format"
+                      value="mp3"
+                      checked={format === 'mp3'}
+                      onChange={() => {
+                        setFormat('mp3');
+                        setIsSaberFont(false);
+                      }}
+                      className="form-radio text-blue-500"
+                    />
+                    <span>MP3</span>
+                  </label>
+                  <div className="flex flex-col space-y-2">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="format"
+                        value="wav"
+                        checked={format === 'wav'}
+                        onChange={() => setFormat('wav')}
+                        className="form-radio text-blue-500"
+                      />
+                      <span>WAV</span>
+                    </label>
+                    {format === 'wav' && (
+                      <label className="flex items-center space-x-2 ml-6">
+                        <input
+                          type="checkbox"
+                          checked={isSaberFont}
+                          onChange={(e) => setIsSaberFont(e.target.checked)}
+                          className="form-checkbox text-blue-500"
+                        />
+                        <span className="text-sm">
+                          Saber Font (PCM, 16-bit, 44.1 kHz, Mono)
+                        </span>
+                      </label>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">
+                      Start Time (MM:SS or HH:MM:SS)
+                    </label>
+                    <input
+                      id="startTime"
+                      type="text"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      placeholder="e.g., 01:30"
+                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="endTime" className="block text-sm font-medium text-gray-700">
+                      End Time (MM:SS or HH:MM:SS)
+                    </label>
+                    <input
+                      id="endTime"
+                      type="text"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      placeholder="e.g., 02:15"
+                      className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full p-2 rounded text-white ${
+                    isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+                  }`}
+                >
+                  {isLoading ? 'Extracting...' : 'Extract Audio'}
+                </button>
+              </form>
+              {downloadUrl && (
+                <div className="mt-4 text-center">
+                  <p className="text-green-600">Audio ready for download!</p>
+                  <button
+                    onClick={handleDownload}
+                    className="mt-2 p-2 bg-green-500 text-white rounded hover:bg-green-600"
+                  >
+                    Download {format.toUpperCase()}
+                  </button>
+                  {format === 'wav' && isSaberFont && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      Format: PCM, 16-bit, 44.1 kHz, Mono (Stereo supported)
+                    </p>
+                  )}
+                  {(startTime || endTime) && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      Time Range: {startTime || '00:00'} to {endTime || 'End'}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        ReactDOM.render(<AudioExtractorApp />, document.getElementById('root'));
+      </script>
+    </body>
+    </html>

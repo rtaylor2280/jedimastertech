@@ -1,0 +1,16 @@
+# Node / local dev
+node_modules/
+dist/
+.env
+.vscode/
+.DS_Store
+
+# Logs
+*.log
+
+# Build artifacts
+*.zip
+*.tar.gz
+
+# OS-specific
+Thumbs.db
