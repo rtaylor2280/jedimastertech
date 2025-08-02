@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Audio Extractor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .saber-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+        .step-section {
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .step-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        .format-selection {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        input[type="radio"] {
+            accent-color: #00d4ff;
+            transform: scale(1.2);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            accent-color: #00d4ff;
+            transform: scale(1.2);
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .url-input-group input {
+            flex: 1;
+        }
+
+        input[type="url"], input[type="text"] {
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="url"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .load-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 140px;
+        }
+
+        .load-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .load-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .load-btn.loading {
+            background: rgba(0, 212, 255, 0.6);
+        }
+
+        .video-preview {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .video-preview.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .video-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .video-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+
+        .video-meta {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .video-duration {
+            color: #00d4ff;
+            font-size: 0.9rem;
+        }
+
+        .video-author {
+            color: #ccc;
+            font-size: 0.85rem;
+        }
+
+        .video-date {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .video-views {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .youtube-link {
+            display: inline-block;
+            margin: 15px 0;
+            padding: 10px 16px;
+            background: #606060;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid #808080;
+        }
+
+        .youtube-link:hover {
+            background: #808080;
+            transform: translateY(-1px);
+        }
+
+        .timing-help {
+            background: rgba(255, 165, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #ffaa00;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .time-input {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .clear-btn {
+            padding: 10px 15px;
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.4);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 107, 107, 0.3);
+        }
+
+        .extract-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .extract-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .extract-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .processing {
+            text-align: center;
+            padding: 20px;
+            color: #00d4ff;
+            display: none;
+        }
+
+        .processing.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .download-section {
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            display: none;
+        }
+
+        .download-section.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .download-icon {
+            font-size: 3rem;
+            color: #00d4ff;
+            margin-bottom: 15px;
+        }
+
+        .download-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .download-details {
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3);
+        }
+
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .info-box {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .url-input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .time-inputs {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .clear-btn {
+                order: 3;
+            }
+
+            .format-selection {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <img src="./assets/icons/icons8-laser-sword-150-left.png" alt="Saber Icon" class="saber-icon">
+            Sound Capture
+            <img src="./assets/icons/icons8-laser-sword-150-right.png" alt="Saber Icon" class="saber-icon">
+        </h1>
+        
+        <div class="error" id="error"></div>
+        
+        <form id="extractForm">
+            <!-- STEP 1: Format Selection -->
+            <div class="step-section">
+                <div class="step-header">Choose Output Format</div>
+                <div class="format-selection">
+                    <div class="radio-group">
+                        <input type="radio" id="formatMp3" name="format" value="mp3">
+                        <label for="formatMp3">MP3</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="formatWav" name="format" value="wav" checked>
+                        <label for="formatWav">WAV</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="saberCompatible" checked>
+                        <label for="saberCompatible">Saber Compatible</label>
+                    </div>
+                </div>
+                <div style="font-size: 0.8rem; color: #aaa;" id="formatDescription">
+                    16-bit, 44.1kHz, mono, uncompressed WAV (PCM) format
+                </div>
+            </div>
+
+            <!-- STEP 2: URL Input and Load -->
+            <div class="step-section">
+                <div class="step-header">Enter YouTube URL and Load Video</div>
+                <div class="url-input-group">
+                    <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." required>
+                    <button type="button" class="load-btn" id="loadBtn">Load Video</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Video Preview (Hidden Initially) -->
+            <div class="step-section video-preview" id="videoPreview">
+                <div class="step-header">Find Your Timing</div>
+                <div class="video-info">
+                    <div class="video-title" id="videoTitle">Video Title</div>
+                    <div class="video-meta">
+                        <div class="video-duration" id="videoDuration">Duration: 0:00</div>
+                        <div class="video-author" id="videoAuthor"></div>
+                        <div class="video-date" id="videoDate"></div>
+                        <div class="video-views" id="videoViews"></div>
+                    </div>
+                </div>
+                <a href="#" id="youtubeLink" target="_blank" class="youtube-link">
+                    Open in YouTube
+                </a>
+                <div class="timing-help">
+                    <strong>💡 How to find precise timing:</strong><br>
+                    1. Click "Open in YouTube" above<br>
+                    2. Navigate to your desired start point and note the time (e.g., 1:30)<br>
+                    3. Navigate to your desired end point and note the time (e.g., 2:45)<br>
+                    4. Enter these times in the step below
+                </div>
+            </div>
+
+            <!-- STEP 4: Time Range -->
+            <div class="step-section">
+                <div class="step-header">Enter Time Range (Optional)</div>
+                <div class="time-inputs">
+                    <div class="time-input">
+                        <label for="startTime">Start Time</label>
+                        <input type="text" id="startTime" placeholder="mm:ss or hh:mm:ss">
+                    </div>
+                    <div class="time-input">
+                        <label for="endTime">End Time</label>
+                        <input type="text" id="endTime" placeholder="mm:ss or hh:mm:ss">
+                    </div>
+                    <button type="button" class="clear-btn" id="clearBtn">🗑️ Clear</button>
+                </div>
+                <div style="font-size: 0.8rem; color: #aaa; margin-top: 10px;">
+                    💡 Leave blank to extract the entire video
+                </div>
+            </div>
+
+            <!-- STEP 5: Extract -->
+            <button type="submit" class="extract-btn" id="extractBtn">Extract Audio</button>
+        </form>
+
+        <div class="processing" id="processing">
+            <div class="spinner"></div>
+            <div>Processing your audio extraction...</div>
+            <div style="font-size: 0.9rem; margin-top: 10px;">This may take a few moments</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-icon">📥</div>
+            <div class="download-title">Your Audio is Ready!</div>
+            <div class="download-details" id="downloadDetails">
+                File: video_audio.wav<br>
+                Format: WAV (Saber Compatible)<br>
+                Duration: 3:45
+            </div>
+            <a href="#" class="download-btn" id="downloadBtn" download>Download Audio File</a>
+        </div>
+
+        <div class="info-box">
+            <strong>Supported URLs:</strong> YouTube videos and YouTube Shorts<br>
+            <strong>Saber Compatible:</strong> Optimized for lightsaber soundboards (16-bit, 44.1kHz, mono WAV)<br>
+            <strong>Time Format:</strong> Use mm:ss (e.g., 1:30) or hh:mm:ss (e.g., 0:01:30)
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px; padding: 15px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+        Created by <strong style="color: #00d4ff;">JediMasterTech</strong>
+    </div>
+
+    <script>
+        // Mock video data with enhanced metadata (fallback when API key not configured)
+        const mockVideoData = {
+            'dQw4w9WgXcQ': {
+                title: 'Rick Astley - Never Gonna Give You Up (Official Video)',
+                duration: '3:33',
+                author: 'Rick Astley',
+                publishDate: 'Oct 25, 2009',
+                viewCount: '1.4B'
+            },
+            'jNQXAC9IVRw': {
+                title: 'Me at the zoo',
+                duration: '0:19',
+                author: 'jawed',
+                publishDate: 'Apr 23, 2005',
+                viewCount: '270M'
+            },
+            'default': {
+                title: 'Sample YouTube Video',
+                duration: '4:27',
+                author: 'Sample Channel',
+                publishDate: 'Jan 1, 2024',
+                viewCount: '1.2K'
+            }
+        };
+
+        // YouTube Data API v3 configuration
+        const YOUTUBE_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with actual API key
+        const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
+
+        // Function to fetch real YouTube metadata using YouTube Data API v3
+        async function fetchYouTubeMetadata(videoId) {
+            try {
+                // Check if API key is configured
+                if (YOUTUBE_API_KEY === 'YOUR_API_KEY_HERE') {
+                    console.log('YouTube API key not configured, using mock data');
+                    return mockVideoData[videoId] || mockVideoData.default;
+                }
+
+                const url = `${YOUTUBE_API_BASE}/videos?id=${videoId}&key=${YOUTUBE_API_KEY}&part=snippet,contentDetails,statistics`;
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.items && data.items.length > 0) {
+                    const video = data.items[0];
+                    const snippet = video.snippet;
+                    const contentDetails = video.contentDetails;
+                    const statistics = video.statistics;
+                    
+                    return {
+                        title: snippet.title,
+                        author: snippet.channelTitle,
+                        publishDate: new Date(snippet.publishedAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        }),
+                        duration: parseYouTubeDuration(contentDetails.duration),
+                        viewCount: parseInt(statistics.viewCount).toLocaleString(),
+                        description: snippet.description.substring(0, 200) + '...'
+                    };
+                } else {
+                    throw new Error('Video not found');
+                }
+                
+            } catch (error) {
+                console.error('YouTube API error:', error);
+                // Fallback to mock data
+                return mockVideoData[videoId] || mockVideoData.default;
+            }
+        }
+
+        function parseYouTubeDuration(duration) {
+            // Parse YouTube API ISO 8601 duration format (PT4M33S) to readable format (4:33)
+            const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+            const hours = parseInt(match[1]) || 0;
+            const minutes = parseInt(match[2]) || 0;
+            const seconds = parseInt(match[3]) || 0;
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        function extractVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        function parseTimeInput(timeStr) {
+            if (!timeStr) return null;
+            const parts = timeStr.split(':').map(Number);
+            if (parts.length === 2) {
+                return parts[0] * 60 + parts[1];
+            } else if (parts.length === 3) {
+                return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            }
+            return null;
+        }
+
+        function updateFormatDescription() {
+            const isWav = document.getElementById('formatWav').checked;
+            const isSaberCompatible = document.getElementById('saberCompatible').checked;
+            const description = document.getElementById('formatDescription');
+            const checkbox = document.getElementById('saberCompatible');
+            
+            if (isWav) {
+                checkbox.style.display = 'inline';
+                checkbox.parentElement.style.display = 'flex';
+                if (isSaberCompatible) {
+                    description.textContent = '16-bit, 44.1kHz, mono, uncompressed WAV (PCM) format';
+                } else {
+                    description.textContent = 'High quality WAV format';
+                }
+            } else {
+                checkbox.style.display = 'none';
+                checkbox.parentElement.style.display = 'none';
+                description.textContent = 'Compressed MP3 format (320kbps)';
+            }
+        }
+
+        function updateLoadButtonState() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            const loadBtn = document.getElementById('loadBtn');
+            
+            if (url) {
+                loadBtn.disabled = false;
+                loadBtn.textContent = 'Load Video';
+            } else {
+                loadBtn.disabled = true;
+                loadBtn.textContent = 'Load Video';
+                document.getElementById('videoPreview').classList.remove('show');
+                document.getElementById('extractBtn').disabled = true;
+            }
+        }
+
+        function loadVideoPreview() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            const loadBtn = document.getElementById('loadBtn');
+            
+            if (!url) {
+                showError('Please enter a YouTube URL');
+                return;
+            }
+
+            const videoId = extractVideoId(url);
+            if (!videoId) {
+                showError('Invalid YouTube URL. Please enter a valid YouTube video or short URL.');
+                return;
+            }
+
+            // Show loading state
+            loadBtn.disabled = true;
+            loadBtn.textContent = 'Loading...';
+            loadBtn.classList.add('loading');
+            hideError();
+            
+            // Simulate loading delay and fetch real metadata
+            setTimeout(async () => {
+                const videoData = await fetchYouTubeMetadata(videoId);
+                
+                document.getElementById('videoTitle').textContent = videoData.title;
+                document.getElementById('videoDuration').textContent = `Duration: ${videoData.duration}`;
+                document.getElementById('videoAuthor').textContent = `Channel: ${videoData.author}`;
+                document.getElementById('videoDate').textContent = `Published: ${videoData.publishDate}`;
+                
+                // Add view count if available
+                if (videoData.viewCount) {
+                    document.getElementById('videoViews').textContent = `${videoData.viewCount} views`;
+                }
+                
+                document.getElementById('youtubeLink').href = url;
+                
+                document.getElementById('videoPreview').classList.add('show');
+                document.getElementById('extractBtn').disabled = false;
+                
+                // Reset button
+                loadBtn.disabled = false;
+                loadBtn.textContent = 'Reload';
+                loadBtn.classList.remove('loading');
+            }, 1000);
+        }
+
+        function clearTimes() {
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            document.getElementById('videoPreview').classList.remove('show');
+            document.getElementById('processing').classList.remove('show');
+            document.getElementById('downloadSection').classList.remove('show');
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function simulateExtraction() {
+            hideError();
+            document.getElementById('downloadSection').classList.remove('show');
+            document.getElementById('processing').classList.add('show');
+            document.getElementById('extractBtn').disabled = true;
+            
+            setTimeout(() => {
+                document.getElementById('processing').classList.remove('show');
+                showDownloadReady();
+                document.getElementById('extractBtn').disabled = false;
+            }, 3000);
+        }
+
+        function showDownloadReady() {
+            const format = document.querySelector('input[name="format"]:checked').value;
+            const isSaberCompatible = document.getElementById('saberCompatible').checked;
+            const videoTitle = document.getElementById('videoTitle').textContent;
+            const duration = document.getElementById('videoDuration').textContent.replace('Duration: ', '');
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            
+            let formatDescription = format.toUpperCase();
+            if (format === 'wav' && isSaberCompatible) {
+                formatDescription += ' (Saber Compatible)';
+            }
+            
+            const filename = `${videoTitle.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30)}.${format}`;
+            
+            let durationText = duration;
+            if (startTime && endTime) {
+                durationText = `${startTime} - ${endTime}`;
+            } else if (startTime) {
+                durationText = `${startTime} - end`;
+            } else if (endTime) {
+                durationText = `start - ${endTime}`;
+            }
+            
+            document.getElementById('downloadDetails').innerHTML = `
+                File: ${filename}<br>
+                Format: ${formatDescription}<br>
+                Duration: ${durationText}
+            `;
+            
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.href = '#';
+            downloadBtn.download = filename;
+            
+            document.getElementById('downloadSection').classList.add('show');
+        }
+
+        // Event listeners
+        document.getElementById('youtubeUrl').addEventListener('input', updateLoadButtonState);
+        document.getElementById('loadBtn').addEventListener('click', loadVideoPreview);
+        document.getElementById('clearBtn').addEventListener('click', clearTimes);
+
+        document.querySelectorAll('input[name="format"]').forEach(radio => {
+            radio.addEventListener('change', updateFormatDescription);
+        });
+
+        document.getElementById('saberCompatible').addEventListener('change', updateFormatDescription);
+
+        document.getElementById('extractForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const url = document.getElementById('youtubeUrl').value.trim();
+            if (!url) {
+                showError('Please enter a YouTube URL');
+                return;
+            }
+            
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            
+            if (startTime && parseTimeInput(startTime) === null) {
+                showError('Invalid start time format. Use mm:ss or hh:mm:ss');
+                return;
+            }
+            
+            if (endTime && parseTimeInput(endTime) === null) {
+                showError('Invalid end time format. Use mm:ss or hh:mm:ss');
+                return;
+            }
+            
+            if (startTime && endTime) {
+                const startSeconds = parseTimeInput(startTime);
+                const endSeconds = parseTimeInput(endTime);
+                if (startSeconds >= endSeconds) {
+                    showError('End time must be after start time');
+                    return;
+                }
+            }
+            
+            simulateExtraction();
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', function(e) {
+            alert('In a real implementation, your audio file would download now!');
+        });
+
+        // Initialize
+        updateFormatDescription();
+        updateLoadButtonState();
+        document.getElementById('extractBtn').disabled = true;
+    </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jedi Master Tech - Saber Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        h1 img {
+            height: 36px;
+            width: 36px;
+        }
+
+        .tool-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tool-button {
+            padding: 16px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .tool-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .tool-button:active {
+            transform: translateY(0);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tool-button {
+                font-size: 1rem;
+                padding: 14px;
+            }
+
+            h1 img {
+                height: 28px;
+                width: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <img src="./assets/icons/icons8-laser-sword-150-left.png" alt="Saber Icon">
+            Saber Builder Tools
+			<img src="./assets/icons/icons8-laser-sword-150-right.png" alt="Saber Icon">
+        </h1>
+        <div class="tool-list">
+            <a href="proffieColorConverter.html" class="tool-button">Proffie Color Converter</a>
+            <a href="lightsaberBalanceCalc.html" class="tool-button">Counterbalance Calculator</a>
+            <a href="soundCapture.html" class="tool-button">Sound Capture</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        Created by <strong style="color: #00d4ff;">JediMasterTech</strong>
+    </div>
+</body>
+</html>
