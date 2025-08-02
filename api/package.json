@@ -2,11 +2,11 @@
   "name": "saber-tools-api",
   "version": "1.0.0",
   "description": "Backend API for Jedi Master Tech - Sound Capture tool",
-  "main": "extract.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node extract.js",
-    "dev": "nodemon extract.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "author": "JediMasterTech",
   "license": "MIT",
