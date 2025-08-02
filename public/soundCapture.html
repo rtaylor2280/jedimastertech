@@ -556,16 +556,7 @@
             return match ? match[1] : null;
         }
 
-        function parseTimeInput(timeStr) {
-            if (!timeStr) return null;
-            const parts = timeStr.split(':').map(Number);
-            if (parts.length === 2) {
-                return parts[0] * 60 + parts[1];
-            } else if (parts.length === 3) {
-                return parts[0] * 3600 + parts[1] * 60 + parts[2];
-            }
-            return null;
-        }
+
 
         function updateFormatDescription() {
             const isWav = document.getElementById('formatWav').checked;
@@ -694,11 +685,6 @@
 
             // Basic validation
             if (!videoUrl) return showError('Please enter a YouTube URL');
-            if (start && !parseTimeInput(start)) return showError('Invalid start time');
-            if (end   && !parseTimeInput(end))   return showError('Invalid end time');
-            if (start && end && parseTimeInput(start) >= parseTimeInput(end)) {
-              return showError('End time must be after start time');
-            }
 
             document.getElementById('processing').classList.add('show');
             document.getElementById('extractBtn').disabled = true;
