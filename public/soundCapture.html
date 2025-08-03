@@ -556,8 +556,6 @@
             return match ? match[1] : null;
         }
 
-
-
         function updateFormatDescription() {
             const isWav = document.getElementById('formatWav').checked;
             const isSaberCompatible = document.getElementById('saberCompatible').checked;
@@ -690,12 +688,17 @@
             document.getElementById('extractBtn').disabled = true;
 
             try {
-              const res = await fetch('/api/extract-audio', {
+              // Now calls the Vercel API route instead of direct VPS
+              const res = await fetch("/api/extract", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ videoUrl, format, startTime: start, endTime: end })
               });
-              if (!res.ok) throw new Error(await res.text());
+              
+              if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Extraction failed');
+              }
 
               const blob = await res.blob();
               const filename = `audio.${format}`;
