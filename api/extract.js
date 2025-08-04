@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': JMT_API_KEY
+        'x-api-key': JMT_API_KEY
       },
       body: JSON.stringify(req.body)
     });
