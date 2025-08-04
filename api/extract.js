@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
   try {
     // Forward the request to your VPS with API key authentication
-    const vpsResponse = await fetch(`${VPS_API_URL}/api/extract-audio`, {
+    const vpsResponse = await fetch(`${VPS_API_URL}/extract-audio`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
