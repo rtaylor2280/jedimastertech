@@ -264,12 +264,17 @@
             grid-template-columns: 1fr 1fr auto;
             gap: 15px;
             align-items: end;
+            margin-bottom: 15px;
         }
 
         .time-input {
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        .filename-input {
+            margin-top: 15px;
         }
 
         .clear-btn {
@@ -321,6 +326,30 @@
 
         .processing.show {
             display: block;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            height: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #0099cc);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .spinner {
@@ -456,9 +485,9 @@
                 </div>
             </div>
 
-            <!-- STEP 4: Time Range -->
+            <!-- STEP 4: Time Range and Filename -->
             <div class="step-section">
-                <div class="step-header">Enter Time Range (Optional)</div>
+                <div class="step-header">Configure Output</div>
                 <div class="time-inputs">
                     <div class="time-input">
                         <label for="startTime">Start Time</label>
@@ -470,8 +499,12 @@
                     </div>
                     <button type="button" class="clear-btn" id="clearBtn">🗑️ Clear</button>
                 </div>
+                <div class="filename-input">
+                    <label for="filename">Custom Filename (Optional)</label>
+                    <input type="text" id="filename" placeholder="e.g., my-saber-sound">
+                </div>
                 <div style="font-size: 0.8rem; color: #aaa; margin-top: 10px;">
-                    💡 Leave blank to extract the entire video
+                    💡 Leave times blank to extract the entire video. Filename will auto-generate from video title if left blank.
                 </div>
             </div>
 
@@ -482,7 +515,13 @@
         <div class="processing" id="processing">
             <div class="spinner"></div>
             <div>Processing your audio extraction...</div>
-            <div style="font-size: 0.9rem; margin-top: 10px;">This may take a few moments</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text">
+                <span id="processingStatus">Starting extraction...</span>
+                <span id="progressPercent">0%</span>
+            </div>
         </div>
 
         <div class="info-box">
@@ -497,6 +536,8 @@
     </div>
 
     <script>
+        let currentVideoData = null;
+
         // Function to fetch real YouTube metadata via the backend API route
         async function fetchYouTubeMetadata(videoId) {
             try {
@@ -556,6 +597,30 @@
             return match ? match[1] : null;
         }
 
+        function sanitizeFilename(str) {
+            return str.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        }
+
+        function generateFilename() {
+            const customFilename = document.getElementById('filename').value.trim();
+            const format = document.querySelector('input[name="format"]:checked').value;
+            const isSaberCompatible = document.getElementById('saberCompatible').checked;
+            
+            if (customFilename) {
+                return customFilename;
+            }
+            
+            if (currentVideoData && currentVideoData.title) {
+                let baseName = sanitizeFilename(currentVideoData.title.substring(0, 50));
+                if (format === 'wav' && isSaberCompatible) {
+                    baseName += '_saber';
+                }
+                return baseName;
+            }
+            
+            return 'extracted_audio';
+        }
+
         function updateFormatDescription() {
             const isWav = document.getElementById('formatWav').checked;
             const isSaberCompatible = document.getElementById('saberCompatible').checked;
@@ -568,7 +633,7 @@
                 if (isSaberCompatible) {
                     description.textContent = '16-bit, 44.1kHz, mono, uncompressed WAV (PCM) format';
                 } else {
-                    description.textContent = 'High quality WAV format';
+                    description.textContent = '16-bit, 48kHz, stereo, uncompressed WAV (PCM) format';
                 }
             } else {
                 checkbox.style.display = 'none';
@@ -615,6 +680,7 @@
             
             try {
                 const videoData = await fetchYouTubeMetadata(videoId);
+                currentVideoData = videoData;
                 
                 document.getElementById('videoTitle').textContent = videoData.title;
                 document.getElementById('videoDuration').textContent = `Duration: ${videoData.duration}`;
@@ -677,44 +743,91 @@
             hideError();
 
             const videoUrl = document.getElementById('youtubeUrl').value.trim();
-            const format   = document.querySelector('input[name="format"]:checked').value;
-            const start    = document.getElementById('startTime').value || null;
-            const end      = document.getElementById('endTime').value   || null;
+            const formatRadio = document.querySelector('input[name="format"]:checked').value;
+            const isSaberCompatible = document.getElementById('saberCompatible').checked;
+            const start = document.getElementById('startTime').value || null;
+            const end = document.getElementById('endTime').value || null;
+
+            // Determine the actual format to send to backend
+            let format = formatRadio;
+            if (formatRadio === 'wav' && isSaberCompatible) {
+                format = 'saber-wav';
+            }
 
             // Basic validation
             if (!videoUrl) return showError('Please enter a YouTube URL');
 
-            document.getElementById('processing').classList.add('show');
+            // Generate session ID for progress tracking
+            const sessionId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+
+            const processingDiv = document.getElementById('processing');
+            const statusDiv = document.getElementById('processingStatus');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            processingDiv.classList.add('show');
             document.getElementById('extractBtn').disabled = true;
+            
+            // Reset progress
+            progressBar.style.width = '0%';
+            progressPercent.textContent = '0%';
+            statusDiv.textContent = 'Starting extraction...';
+
+            // Set a longer timeout for the extraction
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+            }, 15 * 60 * 1000); // 15 minutes timeout
 
             try {
-              // Now calls the Vercel API route instead of direct VPS
-              const res = await fetch("/api/extract", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ videoUrl, format, startTime: start, endTime: end })
-              });
-              
-              if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || 'Extraction failed');
-              }
+                statusDiv.textContent = 'Connecting to server...';
+                
+                const res = await fetch("/api/extract", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ videoUrl, format, startTime: start, endTime: end, sessionId }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || 'Extraction failed');
+                }
 
-              const blob = await res.blob();
-              const filename = `audio.${format}`;
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-              URL.revokeObjectURL(url);
+                statusDiv.textContent = 'Download ready!';
+                
+                const blob = await res.blob();
+                const filename = generateFilename();
+                const fileExtension = formatRadio; // Use the original format for file extension
+                const fullFilename = `${filename}.${fileExtension}`;
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fullFilename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                
+                statusDiv.textContent = 'Download complete!';
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                
+                setTimeout(() => {
+                    processingDiv.classList.remove('show');
+                }, 3000);
+                
             } catch (err) {
-              showError('Extraction failed: ' + err.message);
+                if (err.name === 'AbortError') {
+                    showError('Extraction timed out. Please try a shorter video or time range.');
+                } else {
+                    showError('Extraction failed: ' + err.message);
+                }
             } finally {
-              document.getElementById('processing').classList.remove('show');
-              document.getElementById('extractBtn').disabled = false;
+                document.getElementById('extractBtn').disabled = false;
             }
         });
 

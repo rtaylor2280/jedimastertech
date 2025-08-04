@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const VPS_API_URL = process.env.VPS_API_URL; // e.g., "http://148.230.91.80:3000"
+  const VPS_API_URL = process.env.VPS_API_URL; // e.g., "http://71.237.6.110:8443/api"
   const JMT_API_KEY = process.env.JMT_API_KEY;
 
   if (!VPS_API_URL || !JMT_API_KEY) {
