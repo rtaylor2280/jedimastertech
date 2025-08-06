@@ -4,36 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Trimmer Pro</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #ffffff;
-        }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
         }
 
         h1 {
@@ -43,6 +20,12 @@
             display: flex;
             align-items: center;
             gap: 15px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .logo-icon {
@@ -345,66 +328,12 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        .export-section {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 15px;
-            padding: 30px;
+        #exportSection {
             display: none;
         }
 
-        .export-section.active {
+        #exportSection.active {
             display: block;
-        }
-
-        .export-title {
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 20px;
-        }
-
-        .export-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .format-option {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .format-option:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .format-option.selected {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        .format-radio {
-            display: none;
-        }
-
-        .format-label {
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-        }
-
-        .format-name {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-
-        .format-desc {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
         }
 
         .filename-group {
@@ -615,31 +544,25 @@
                 </div>
             </div>
 
-            <div class="export-section" id="exportSection">
-                <div class="export-title">Export Settings</div>
-                
-                <div class="export-options">
-                    <div class="format-option selected" data-format="saber">
-                        <input type="radio" name="format" value="saber" id="formatSaber" class="format-radio" checked>
-                        <label for="formatSaber" class="format-label">
-                            <span class="format-name">🗡️ Saber Compatible</span>
-                            <span class="format-desc">16-bit, 44.1kHz, Mono WAV</span>
-                        </label>
+            <div class="step-section" id="exportSection">
+                <div class="step-header">Export Settings</div>
+
+                <div class="format-selection">
+                    <div class="radio-group">
+                        <input type="radio" id="formatMp3" name="format" value="mp3">
+                        <label for="formatMp3">MP3</label>
                     </div>
-                    <div class="format-option" data-format="wav">
-                        <input type="radio" name="format" value="wav" id="formatWav" class="format-radio">
-                        <label for="formatWav" class="format-label">
-                            <span class="format-name">📊 Standard WAV</span>
-                            <span class="format-desc">Original quality WAV</span>
-                        </label>
+                    <div class="radio-group">
+                        <input type="radio" id="formatWav" name="format" value="wav" checked>
+                        <label for="formatWav">WAV</label>
                     </div>
-                    <div class="format-option" data-format="mp3">
-                        <input type="radio" name="format" value="mp3" id="formatMp3" class="format-radio">
-                        <label for="formatMp3" class="format-label">
-                            <span class="format-name">🎵 MP3</span>
-                            <span class="format-desc">Compressed audio (320kbps)</span>
-                        </label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="saberCompatible" checked>
+                        <label for="saberCompatible">Saber Compatible</label>
                     </div>
+                </div>
+                <div style="font-size: 0.8rem; color: #aaa;" id="formatDescription">
+                    16-bit, 44.1kHz, mono, uncompressed WAV (PCM) format
                 </div>
 
                 <div class="filename-group">
@@ -727,19 +650,19 @@
             });
 
             // Format selection
-            document.querySelectorAll('.format-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    document.querySelectorAll('.format-option').forEach(o => o.classList.remove('selected'));
-                    option.classList.add('selected');
-                    option.querySelector('.format-radio').checked = true;
-                });
+            document.querySelectorAll('input[name="format"]').forEach(radio => {
+                radio.addEventListener('change', updateFormatDescription);
             });
+            document.getElementById('saberCompatible').addEventListener('change', updateFormatDescription);
 
             // Download
             document.getElementById('downloadBtn').addEventListener('click', downloadAudio);
 
             // Trim markers
             setupTrimMarkers();
+
+            // Initialize format description
+            updateFormatDescription();
         }
 
         function setupTrimMarkers() {
@@ -1150,32 +1073,53 @@
             return processedBuffer;
         }
 
+        function updateFormatDescription() {
+            const isWav = document.getElementById('formatWav').checked;
+            const isSaberCompatible = document.getElementById('saberCompatible').checked;
+            const description = document.getElementById('formatDescription');
+            const checkbox = document.getElementById('saberCompatible');
+
+            if (isWav) {
+                checkbox.style.display = 'inline';
+                checkbox.parentElement.style.display = 'flex';
+                if (isSaberCompatible) {
+                    description.textContent = '16-bit, 44.1kHz, mono, uncompressed WAV (PCM) format';
+                } else {
+                    description.textContent = '16-bit, 48kHz, stereo, uncompressed WAV (PCM) format';
+                }
+            } else {
+                checkbox.parentElement.style.display = 'none';
+                description.textContent = 'Compressed MP3 format (320kbps)';
+            }
+        }
+
         async function downloadAudio() {
             if (!audioBuffer) return;
-            
+
             showLoading(true);
-            
+
             try {
-                const format = document.querySelector('input[name="format"]:checked').value;
+                const formatRadio = document.querySelector('input[name="format"]:checked').value;
+                const isSaberCompatible = document.getElementById('saberCompatible').checked;
                 const filename = document.getElementById('filename').value || 'trimmed_audio';
-                
+
                 // Create processed buffer
                 const processedBuffer = await createProcessedBuffer();
-                
+
                 let blob;
                 let extension;
-                
-                if (format === 'mp3') {
-                    // Note: MP3 encoding requires additional library
-                    // For now, we'll default to WAV
+
+                if (formatRadio === 'mp3') {
+                    // Note: MP3 encoding requires additional setup
                     showError('MP3 export requires additional setup. Exporting as WAV instead.');
                     blob = await createWAV(processedBuffer, false);
                     extension = '.wav';
-                } else if (format === 'saber') {
-                    blob = await createSaberWAV(processedBuffer);
-                    extension = '.wav';
                 } else {
-                    blob = await createWAV(processedBuffer, false);
+                    if (isSaberCompatible) {
+                        blob = await createSaberWAV(processedBuffer);
+                    } else {
+                        blob = await createWAV(processedBuffer, false);
+                    }
                     extension = '.wav';
                 }
                 
