@@ -6,6 +6,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	/* Fallback for older browsers */
+    background: #1a1a2e;
+    /* Modern browsers */
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     color: #ffffff;
     min-height: 100vh;
@@ -114,6 +117,9 @@ input::placeholder {
 
 .load-btn {
     padding: 12px 24px;
+	/* Fallback */
+    background: #27ae60;
+    /* Modern browsers */
     background: linear-gradient(45deg, #27ae60, #2ecc71);
     border: none;
     border-radius: 10px;
@@ -139,4 +145,17 @@ input::placeholder {
 
 .load-btn.loading {
     background: rgba(0, 212, 255, 0.6);
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+
+.footer .creator {
+    color: #00d4ff;
+    font-weight: bold;
 }

@@ -17,6 +17,9 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
             margin-bottom: 20px;
+			display: flex;
+			justify-content: center;
+			gap: 30px;    
         }
 
         .units-selector label {
@@ -25,6 +28,10 @@
             cursor: pointer;
             transition: color 0.3s ease;
             margin-right: 20px;
+			margin-right: 0; 
+			display: flex;
+			align-items: center;
+			gap: 8px;
         }
 
         .units-selector label:hover {
@@ -33,7 +40,7 @@
 
         .units-selector input[type="radio"] {
             accent-color: #00d4ff;
-            margin-right: 8px;
+            margin-right: 0;
         }
 
         .input-grid {
@@ -162,15 +169,6 @@
             transform: translateX(-1px);
         }
 
-        .balance-point::after {
-            content: '⚖';
-            position: absolute;
-            top: -5px;
-            left: -8px;
-            font-size: 16px;
-            color: #ff4444;
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -215,9 +213,7 @@
 <body>
     <div class="container">
         <h1>
-            <img src="./assets/icons/icons8-laser-sword-150-left.png" alt="Saber Icon" class="saber-icon">
             Counterbalance Calculator
-            <img src="./assets/icons/icons8-laser-sword-150-right.png" alt="Saber Icon" class="saber-icon">
         </h1>
         
         <div class="error" id="error"></div>
@@ -237,40 +233,42 @@
             <div class="input-grid">
                 <div class="input-group">
                     <label for="bladeLength">Blade Length (<span id="lengthUnit">inches</span>)</label>
-                    <input type="number" id="bladeLength" step="0.01" placeholder="e.g., 35.4" required>
+                    <input type="number" id="bladeLength" step="any" placeholder="e.g., 35.4" required>
                 </div>
                 
                 <div class="input-group">
                     <label for="bladeWeight">Blade Weight (g)</label>
-                    <input type="number" id="bladeWeight" step="0.1" placeholder="e.g., 150.5" required>
+                    <input type="number" id="bladeWeight" step="any" placeholder="e.g., 150.5" required>
                 </div>
 				
 				<div class="input-group">
                     <label for="hiltLength">Hilt Length (<span id="hiltLengthUnit">inches</span>)</label>
-                    <input type="number" id="hiltLength" step="0.01" placeholder="e.g., 11.0" required>
+                    <input type="number" id="hiltLength" step="any" placeholder="e.g., 11.0" required>
                 </div>
                 
                 <div class="input-group">
                     <label for="hiltWeight">Hilt Weight (g)</label>
-                    <input type="number" id="hiltWeight" step="0.1" placeholder="Including core & battery" required>
+                    <input type="number" id="hiltWeight" step="any" placeholder="Including core & battery" required>
                 </div>
                 
                 <div class="input-group">
                     <label for="bladeInsert">Blade Insert Length (<span id="insertUnit">inches</span>)</label>
-                    <input type="number" id="bladeInsert" step="0.01" placeholder="Blade length inside hilt" required>
+                    <input type="number" id="bladeInsert" step="any" placeholder="Blade length inside hilt" required>
                 </div>
                 
                 <div class="input-group">
                     <label for="bareHiltBalance">Bare Hilt Balance Point (<span id="bareBalanceUnit">inches</span>)</label>
-                    <input type="number" id="bareHiltBalance" step="0.01" placeholder="Measured from blade insertion end" required>
+                    <input type="number" id="bareHiltBalance" step="any" placeholder="Measured from blade insertion end" required>
                     <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Where does your hilt balance without a blade?</div>
                 </div>
                 
                 <div class="input-group">
-                    <label for="desiredBalance">Desired Final Balance Point (<span id="balanceUnit">inches</span>)</label>
-                    <input type="number" id="desiredBalance" step="0.01" placeholder="e.g., 5.5" required>
-                    <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Where you want the completed saber to balance (based on your grip)</div>
-                </div>
+					<label for="desiredBalance">Desired Final Balance Point (<span id="balanceUnit">inches</span>)</label>
+					<input type="number" id="desiredBalance" step="any" placeholder="e.g., 5.5 or -1.2" required>
+					<div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">
+						Where you want the completed saber to balance. Negative values = forward of hilt (blade-heavy)
+					</div>
+				</div>
             </div>
             
             <button type="submit" class="calculate-btn">Calculate Counterbalance</button>
@@ -299,9 +297,9 @@
         </div>
     </div>
 
-    <div style="text-align: center; margin-top: 20px; padding: 15px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
-        Created by <strong style="color: #00d4ff;">JediMasterTech</strong>
-    </div>
+	<div class="footer">
+		Created by <span class="creator">JediMasterTech</span>
+	</div>
 
     <script>
         (function() {
@@ -340,13 +338,13 @@
                     document.getElementById('hiltLength').placeholder = 'e.g., 11.0';
                     document.getElementById('bladeInsert').placeholder = 'e.g., 1.0';
                     document.getElementById('bareHiltBalance').placeholder = 'e.g., 5.8';
-                    document.getElementById('desiredBalance').placeholder = 'e.g., 5.5';
+                    document.getElementById('desiredBalance').placeholder = 'e.g., 5.5 or -1.2';
                 } else {
                     document.getElementById('bladeLength').placeholder = 'e.g., 900';
                     document.getElementById('hiltLength').placeholder = 'e.g., 280';
                     document.getElementById('bladeInsert').placeholder = 'e.g., 25';
                     document.getElementById('bareHiltBalance').placeholder = 'e.g., 147';
-                    document.getElementById('desiredBalance').placeholder = 'e.g., 140';
+                    document.getElementById('desiredBalance').placeholder = 'e.g., 140 or -30';
                 }
             }
 
@@ -401,19 +399,19 @@
                     
                     // Validation
                     if (bladeInsert >= hiltLength) {
-                        showError('Blade insert length cannot be greater than or equal to hilt length');
-                        return;
-                    }
+						showError('Blade insert length cannot be greater than or equal to hilt length');
+						return;
+					}
+
+					if (bareHiltBalance >= hiltLength) {
+						showError('Bare hilt balance point cannot be at or beyond the pommel end');
+						return;
+					}
                     
-                    if (bareHiltBalance >= hiltLength || bareHiltBalance <= 0) {
-                        showError('Bare hilt balance point must be within the hilt length');
-                        return;
-                    }
-                    
-                    if (desiredBalance >= hiltLength || desiredBalance <= 0) {
-                        showError('Desired balance point must be within the hilt length');
-                        return;
-                    }
+                    if (desiredBalance >= hiltLength) {
+						showError('Desired balance point cannot be at or beyond the pommel end');
+						return;
+					}
                     
                     console.log('Validation passed, calculating...');
                     
@@ -455,14 +453,10 @@
                     const counterweightDistance = hiltLength - desiredBalance;
                     
                     if (counterweightDistance <= 0) {
-                        return { error: 'Desired balance point must be before the pommel end' };
-                    }
-                    
-                    const counterweight = -totalMoment / counterweightDistance;
-                    
-                    if (counterweight < 0) {
-                        return { error: 'Cannot achieve this balance point - it would require negative weight. Try moving the balance point further back.' };
-                    }
+						return { error: 'Desired balance point cannot be at or beyond the pommel end' };
+					}
+
+					const counterweight = -totalMoment / counterweightDistance;
                     
                     return { counterweight: Math.round(counterweight * 10) / 10 };
                     
@@ -524,63 +518,121 @@
                 document.getElementById('result').classList.remove('show');
             }
             
-            function displayResult(counterweight, alternativeResult, unit, desiredBalance, hiltLength) {
-                document.getElementById('resultValue').textContent = counterweight;
-                
-                const altSolution = document.getElementById('alternativeSolution');
-                const altValue = document.getElementById('alternativeValue');
-                
-                if (alternativeResult.length && alternativeResult.length > 0) {
-                    const displayLength = unit === 'inches' ? 
-                        Math.round(mmToInches(alternativeResult.length) * 100) / 100 + '"' : 
-                        alternativeResult.length + 'mm';
-                    
-                    altValue.textContent = displayLength;
-                    altSolution.style.display = 'block';
-                } else {
-                    altSolution.style.display = 'none';
-                }
-                
-                const resultDiv = document.getElementById('result');
-                let conversionHtml = '';
-                
-                if (unit === 'inches') {
-                    const balancePointInches = Math.round(mmToInches(desiredBalance) * 100) / 100;
-                    const hiltLengthInches = Math.round(mmToInches(hiltLength) * 100) / 100;
-                    conversionHtml = '<div class="conversion-display">Desired balance: ' + balancePointInches + '" from blade insertion<br>Distance to pommel: ' + Math.round((hiltLengthInches - balancePointInches) * 100) / 100 + '"</div>';
-                } else {
-                    conversionHtml = '<div class="conversion-display">Desired balance: ' + desiredBalance + 'mm from blade insertion<br>Distance to pommel: ' + (hiltLength - desiredBalance) + 'mm</div>';
-                }
-                
-                const existingConversion = resultDiv.querySelector('.conversion-display');
-                if (existingConversion) {
-                    existingConversion.remove();
-                }
-                
-                const resultLabel = resultDiv.querySelector('.result-label');
-                if (resultLabel) {
-                    resultLabel.insertAdjacentHTML('afterend', conversionHtml);
-                }
-                
-                resultDiv.classList.add('show');
-            }
+			function displayResult(counterweight, alternativeResult, unit, desiredBalance, hiltLength) {
+				const resultValue = document.getElementById('resultValue');
+				const resultLabel = document.querySelector('.result-label');
+				
+				// Handle negative counterweight (weight removal)
+				if (counterweight < 0) {
+					resultValue.textContent = Math.abs(counterweight);
+					resultLabel.textContent = 'grams to REMOVE from pommel (estimate)';
+					resultValue.style.color = '#ff6b6b'; // Red for removal
+				} else {
+					resultValue.textContent = counterweight;
+					resultLabel.textContent = 'grams counterbalance needed (estimate)';
+					resultValue.style.color = '#00d4ff'; // Blue for addition
+				}
+				
+				const altSolution = document.getElementById('alternativeSolution');
+				const altValue = document.getElementById('alternativeValue');
+				
+				if (alternativeResult.length && alternativeResult.length > 0) {
+					const displayLength = unit === 'inches' ? 
+						Math.round(mmToInches(alternativeResult.length) * 100) / 100 + '"' : 
+						alternativeResult.length + 'mm';
+					
+					altValue.textContent = displayLength;
+					altSolution.style.display = 'block';
+				} else {
+					altSolution.style.display = 'none';
+				}
+				
+				const resultDiv = document.getElementById('result');
+				let conversionHtml = '';
+				
+				if (unit === 'inches') {
+					const balancePointInches = Math.round(mmToInches(desiredBalance) * 100) / 100;
+					const hiltLengthInches = Math.round(mmToInches(hiltLength) * 100) / 100;
+					
+					// Handle negative balance points (forward of hilt)
+					const position = balancePointInches < 0 ? 
+						Math.abs(balancePointInches) + '" forward of blade insertion' : 
+						balancePointInches + '" from blade insertion';
+						
+					conversionHtml = '<div class="conversion-display">Desired balance: ' + position + '<br>Distance to pommel: ' + Math.round((hiltLengthInches - balancePointInches) * 100) / 100 + '"</div>';
+				} else {
+					// Handle negative balance points (forward of hilt)
+					const position = desiredBalance < 0 ? 
+						Math.abs(desiredBalance) + 'mm forward of blade insertion' : 
+						desiredBalance + 'mm from blade insertion';
+						
+					conversionHtml = '<div class="conversion-display">Desired balance: ' + position + '<br>Distance to pommel: ' + (hiltLength - desiredBalance) + 'mm</div>';
+				}
+				
+				const existingConversion = resultDiv.querySelector('.conversion-display');
+				if (existingConversion) {
+					existingConversion.remove();
+				}
+				
+				const resultLabel_el = resultDiv.querySelector('.result-label');
+				if (resultLabel_el) {
+					resultLabel_el.insertAdjacentHTML('afterend', conversionHtml);
+				}
+				
+				resultDiv.classList.add('show');
+			}
             
             function createVisualDiagram(bladeLength, hiltLength, bladeInsert, desiredBalance) {
-                const diagram = document.getElementById('visualDiagram');
-                const scale = 300 / (bladeLength + hiltLength);
-                
-                const externalBladeLength = bladeLength - bladeInsert;
-                const bladeWidth = Math.max(2, externalBladeLength * scale);
-                const hiltWidth = Math.max(20, hiltLength * scale);
-                const balancePos = desiredBalance * scale;
-                
-                const unit = getCurrentUnit();
-                const displayBalancePoint = unit === 'inches' ? 
-                    Math.round(mmToInches(desiredBalance) * 100) / 100 + '"' : 
-                    desiredBalance + 'mm';
-                
-                diagram.innerHTML = '<div class="lightsaber-diagram"><div class="blade" style="width: ' + bladeWidth + 'px;"></div><div class="hilt" style="width: ' + hiltWidth + 'px; position: relative;"><div class="balance-point" style="left: ' + balancePos + 'px;"></div></div></div><div style="font-size: 0.9rem; color: #ccc; margin-top: 10px;">Red marker shows desired balance point at ' + displayBalancePoint + ' from blade insertion</div>';
-            }
+				const diagram = document.getElementById('visualDiagram');
+				const scale = 300 / (bladeLength + hiltLength);
+				
+				const externalBladeLength = bladeLength - bladeInsert;
+				const bladeWidth = Math.max(2, externalBladeLength * scale);
+				const hiltWidth = Math.max(20, hiltLength * scale);
+				
+				// Handle negative balance points
+				const balancePos = Math.max(0, desiredBalance * scale);
+				const isNegativeBalance = desiredBalance < 0;
+				
+				const unit = getCurrentUnit();
+				let displayBalancePoint, positionDescription;
+				
+				if (unit === 'inches') {
+					const balanceInches = Math.round(mmToInches(desiredBalance) * 100) / 100;
+					displayBalancePoint = Math.abs(balanceInches) + '"';
+					positionDescription = balanceInches < 0 ? 
+						'forward of blade insertion (blade-heavy)' : 
+						'from blade insertion';
+				} else {
+					displayBalancePoint = Math.abs(desiredBalance) + 'mm';
+					positionDescription = desiredBalance < 0 ? 
+						'forward of blade insertion (blade-heavy)' : 
+						'from blade insertion';
+				}
+				
+				let diagramHtml = '<div class="lightsaber-diagram">';
+				
+				if (isNegativeBalance) {
+					// Show balance point in the blade area for negative values
+					diagramHtml += '<div class="blade" style="width: ' + bladeWidth + 'px; position: relative;">';
+					diagramHtml += '<div class="balance-point" style="left: ' + (bladeWidth + desiredBalance * scale) + 'px;"></div>';
+					diagramHtml += '</div>';
+					diagramHtml += '<div class="hilt" style="width: ' + hiltWidth + 'px;"></div>';
+				} else {
+					// Normal case - balance point in hilt
+					diagramHtml += '<div class="blade" style="width: ' + bladeWidth + 'px;"></div>';
+					diagramHtml += '<div class="hilt" style="width: ' + hiltWidth + 'px; position: relative;">';
+					diagramHtml += '<div class="balance-point" style="left: ' + balancePos + 'px;"></div>';
+					diagramHtml += '</div>';
+				}
+				
+				diagramHtml += '</div>';
+				diagramHtml += '<div style="font-size: 0.9rem; color: #ccc; margin-top: 10px;">';
+				diagramHtml += 'Red marker shows desired balance point at ' + displayBalancePoint + ' ' + positionDescription;
+				diagramHtml += '</div>';
+				
+				diagram.innerHTML = diagramHtml;
+			}
 
         })();
     </script>

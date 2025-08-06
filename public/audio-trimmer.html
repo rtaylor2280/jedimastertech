@@ -450,7 +450,6 @@
     <div class="container">
         <div class="header">
             <h1>
-                <div class="logo-icon">🎵</div>
                 Audio Trimmer Pro
             </h1>
         </div>
@@ -584,8 +583,11 @@
             <div>Processing audio...</div>
         </div>
     </div>
+	
+	<div class="footer">
+		Created by <span class="creator">JediMasterTech</span>
+	</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
     <script>
         let audioContext = null;
         let audioBuffer = null;
@@ -737,18 +739,29 @@
         }
 
         async function handleFile(file) {
-            showLoading(true);
-            hideError();
+			showLoading(true);
+			hideError();
 
-            try {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
+			try {
+				// Check Web Audio API support
+				if (!window.AudioContext && !window.webkitAudioContext) {
+					throw new Error('Web Audio API not supported in this browser. Please use Chrome, Firefox, or Safari.');
+				}
 
-                const arrayBuffer = await file.arrayBuffer();
-                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                
-                currentFileName = file.name.replace(/\.[^/.]+$/, '');
+				if (!audioContext) {
+					audioContext = new (window.AudioContext || window.webkitAudioContext)();
+				}
+
+				// Check if audio context is suspended (required by some browsers)
+				if (audioContext.state === 'suspended') {
+					await audioContext.resume();
+				}
+
+				const arrayBuffer = await file.arrayBuffer();
+				audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+				
+				// Rest of existing function...
+				currentFileName = file.name.replace(/\.[^/.]+$/, '');
                 
                 // Update UI
                 document.getElementById('fileName').textContent = file.name;
@@ -778,11 +791,17 @@
                 updateTimeDisplay();
                 
             } catch (error) {
-                console.error('Error loading file:', error);
-                showError('Error loading file: ' + error.message);
-            } finally {
-                showLoading(false);
-            }
+				console.error('Error loading file:', error);
+				if (error.name === 'NotSupportedError') {
+					showError('This audio format is not supported. Try converting to WAV or MP3 first.');
+				} else if (error.message.includes('Web Audio API')) {
+					showError(error.message);
+				} else {
+					showError('Error loading file: ' + error.message);
+				}
+			} finally {
+				showLoading(false);
+			}
         }
 
         function drawWaveform() {

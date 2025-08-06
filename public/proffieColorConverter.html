@@ -153,9 +153,7 @@
 <body>
     <div class="container">
         <h1>
-            <img src="./assets/icons/icons8-laser-sword-150-left.png" alt="Saber Icon" class="saber-icon">
             Proffie Color Converter
-            <img src="./assets/icons/icons8-laser-sword-150-right.png" alt="Saber Icon" class="saber-icon">
         </h1>
         
         <div class="input-group">
@@ -194,9 +192,9 @@
         </div>
     </div>
 
-    <div style="text-align: center; margin-top: 20px; padding: 15px; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
-        Created by <strong style="color: #00d4ff;">JediMasterTech</strong>
-    </div>
+	<div class="footer">
+		Created by <span class="creator">JediMasterTech</span>
+	</div>
 
     <script>
         // Named colors data - will be populated from CSV
@@ -472,18 +470,65 @@ yellowgreen,154,205,50`;
             }
         }
 
-        function copyToClipboard() {
-            const output = document.getElementById('output').textContent;
-            navigator.clipboard.writeText(output).then(() => {
-                const copyBtn = document.getElementById('copyBtn');
-                copyBtn.textContent = 'Copied!';
-                copyBtn.classList.add('copied');
-                setTimeout(() => {
-                    copyBtn.textContent = 'Copy to Clipboard';
-                    copyBtn.classList.remove('copied');
-                }, 2000);
-            });
-        }
+		function copyToClipboard() {
+			const output = document.getElementById('output').textContent;
+			
+			// Check clipboard API support
+			if (!navigator.clipboard) {
+				// Fallback for older browsers
+				const textArea = document.createElement('textarea');
+				textArea.value = output;
+				textArea.style.position = 'fixed';
+				textArea.style.opacity = '0';
+				document.body.appendChild(textArea);
+				textArea.select();
+				
+				try {
+					document.execCommand('copy');
+					const copyBtn = document.getElementById('copyBtn');
+					copyBtn.textContent = 'Copied!';
+					copyBtn.classList.add('copied');
+					setTimeout(() => {
+						copyBtn.textContent = 'Copy to Clipboard';
+						copyBtn.classList.remove('copied');
+					}, 2000);
+				} catch (err) {
+					console.error('Copy failed:', err);
+					alert('Copy failed. Please select the text manually.');
+				} finally {
+					document.body.removeChild(textArea);
+				}
+			} else {
+				// Modern clipboard API with proper error handling
+				navigator.clipboard.writeText(output).then(() => {
+					const copyBtn = document.getElementById('copyBtn');
+					copyBtn.textContent = 'Copied!';
+					copyBtn.classList.add('copied');
+					setTimeout(() => {
+						copyBtn.textContent = 'Copy to Clipboard';
+						copyBtn.classList.remove('copied');
+					}, 2000);
+				}).catch(err => {
+					console.error('Copy failed:', err);
+					// Try fallback method
+					const textArea = document.createElement('textarea');
+					textArea.value = output;
+					textArea.style.position = 'fixed';
+					textArea.style.opacity = '0';
+					document.body.appendChild(textArea);
+					textArea.select();
+					try {
+						document.execCommand('copy');
+						const copyBtn = document.getElementById('copyBtn');
+						copyBtn.textContent = 'Copied!';
+						copyBtn.classList.add('copied');
+					} catch (fallbackErr) {
+						alert('Copy failed. Please select the text manually.');
+					}
+					document.body.removeChild(textArea);
+				});
+			}
+		}
 
         // Add event listeners
         document.getElementById('red').addEventListener('input', updateOutput);
