@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proffie Style Parser</title>
+	<link rel="stylesheet" href="./assets/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+        }
+
+        .parse-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .parse-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .export-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .tree-view {
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .node {
+            margin: 5px 0;
+        }
+
+        .node-header {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			flex-wrap: wrap;
+			padding: 8px 12px;
+			background: rgba(255, 255, 255, 0.1);
+			border-radius: 8px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			border-left: 3px solid #00d4ff;
+		}
+
+        .node-header:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .expand-icon {
+            margin-right: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            width: 15px;
+            color: #00d4ff;
+        }
+
+        .function-name {
+            font-weight: 600;
+            color: #ff6b6b;
+            margin-right: 10px;
+        }
+
+		.parameters {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+			width: 100%;
+			margin-top: 6px;
+		}
+
+        .parameter-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            padding: 4px 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            margin: 0 4px;
+            min-width: 60px;
+        }
+
+        .parameter-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .expand-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 3px;
+            color: #ffffff;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            margin-left: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0.6;
+        }
+
+        .expand-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .expand-btn.modified {
+            opacity: 1;
+            background: rgba(0, 212, 255, 0.3);
+        }
+
+        .expand-btn.modified:hover {
+            background: rgba(0, 212, 255, 0.5);
+        }
+
+		.parameter-group {
+			display: flex;
+			flex-wrap: nowrap;
+			align-items: center;
+			gap: 4px;
+		}
+
+        .node-children {
+            margin-left: 30px;
+            margin-top: 10px;
+            border-left: 2px solid rgba(0, 212, 255, 0.3);
+            padding-left: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Proffie Style Parser</h1>
+        
+        <div class="input-section">
+            <label for="codeInput">Paste your Proffie style code:</label>
+            <textarea id="codeInput" placeholder="Paste your using RainbowSwitch = Layers<...> code here"></textarea>
+            <br><br>
+            <button class="parse-btn" onclick="parseCode()">Parse Structure</button>
+            <button class="export-btn" onclick="exportCode()">Copy Modified Code</button>
+            <button class="parse-btn" onclick="clearForm()" style="background: linear-gradient(45deg, #e74c3c, #c0392b); margin-left: 10px;">Clear</button>
+        </div>
+
+        <div id="errorDisplay"></div>
+        <div id="treeView" class="tree-view hidden"></div>
+    </div>
+	
+	<div class="`">
+		Created by <span class="creator">JediMasterTech</span>
+	</div>
+
+    <script>
+        let parsedStructure = null;
+        let originalCode = '';
+        let codePrefix = '';
+        let codeSuffix = '';
+        let codeFormat = ''; // 'using' or 'styleptr'
+        let collapsedNodes = new Set(); // Track which nodes are collapsed
+
+        // Make tryExpandParameter available globally for onclick handlers
+        window.tryExpandParameter = function(nodeId) {
+            // Find the input field for this node
+            const inputElement = document.querySelector(`input[onchange*="${nodeId}"]`);
+            if (!inputElement) return;
+            
+            const nestedCode = inputElement.value.trim();
+            
+            try {
+                // Try to parse the field value as nested code
+                const nestedStructure = parseExpression(nestedCode);
+                
+                // Only expand if it's actually a function (has nested structure)
+                if (nestedStructure.type === 'function' && nestedStructure.parameters && nestedStructure.parameters.length > 0) {
+                    // Store scroll position
+                    const treeView = document.getElementById('treeView');
+                    const scrollTop = treeView.scrollTop;
+                    
+                    // Replace the simple value with the parsed structure
+                    replaceNodeStructure(parsedStructure, nodeId, nestedStructure);
+                    
+                    // Re-render the tree
+                    displayTree();
+                    
+                    // Restore scroll position
+                    setTimeout(() => {
+                        treeView.scrollTop = scrollTop;
+                    }, 0);
+                } else {
+                    showError(`"${nestedCode}" is not expandable nested code.`);
+                    setTimeout(clearError, 3000);
+                }
+            } catch (error) {
+                showError(`Cannot parse "${nestedCode}" as nested code: ${error.message}`);
+                setTimeout(clearError, 3000);
+            }
+        };
+
+        function replaceNodeStructure(node, targetId, newStructure) {
+            if (node.id === targetId) {
+                // Replace this node's properties with the new structure
+                Object.assign(node, newStructure);
+                return true;
+            }
+            
+            if (node.parameters) {
+                for (let param of node.parameters) {
+                    if (replaceNodeStructure(param, targetId, newStructure)) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorDisplay');
+            errorDiv.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        function clearError() {
+            document.getElementById('errorDisplay').innerHTML = '';
+        }
+
+        function parseCode() {
+            const code = document.getElementById('codeInput').value.trim();
+            
+            if (!code) {
+                showError('Please enter some code to parse.');
+                return;
+            }
+
+            clearError();
+            originalCode = code;
+
+            try {
+                // Try to find either 'using VariableName = Expression' or 'StylePtr<Expression>()'
+                let usingMatch = code.match(/(.*?)(using\s+(\w+)\s*=\s*(.+?);)(.*)/s);
+                let stylePtrMatch = code.match(/(.*?)(StylePtr<(.+?)>\(\))(.*)/s);
+                
+                if (usingMatch) {
+                    // Handle 'using' format
+                    codeFormat = 'using';
+                    codePrefix = usingMatch[1];
+                    const variableName = usingMatch[3];
+                    const expression = usingMatch[4];
+                    codeSuffix = usingMatch[5];
+                    
+                    parsedStructure = parseExpression(expression);
+                    parsedStructure.variableName = variableName;
+                } else if (stylePtrMatch) {
+                    // Handle 'StylePtr<>' format
+                    codeFormat = 'styleptr';
+                    codePrefix = stylePtrMatch[1];
+                    const expression = stylePtrMatch[3];
+                    codeSuffix = stylePtrMatch[4];
+                    
+                    parsedStructure = parseExpression(expression);
+                } else {
+                    showError('No valid code pattern found. Looking for either "using Variable = Expression;" or "StylePtr<Expression>()"');
+                    return;
+                }
+                
+                displayTree();
+            } catch (error) {
+                showError('Parse error: ' + error.message);
+            }
+        }
+
+        function parseExpression(expr) {
+            expr = expr.trim();
+            
+            // Check if it's a function call
+            const funcMatch = expr.match(/^(\w+)<(.*)>$/s);
+            if (funcMatch) {
+                const funcName = funcMatch[1];
+                const params = funcMatch[2];
+                
+                return {
+                    type: 'function',
+                    name: funcName,
+                    parameters: parseParameters(params),
+                    id: Math.random().toString(36).substr(2, 9)
+                };
+            }
+            
+            // Otherwise it's a simple value
+            return {
+                type: 'value',
+                value: expr,
+                id: Math.random().toString(36).substr(2, 9)
+            };
+        }
+
+        function parseParameters(params) {
+            if (!params.trim()) return [];
+            
+            const result = [];
+            let current = '';
+            let depth = 0;
+            let inString = false;
+            let stringChar = '';
+            
+            for (let i = 0; i < params.length; i++) {
+                const char = params[i];
+                
+                if (!inString && (char === '"' || char === "'")) {
+                    inString = true;
+                    stringChar = char;
+                } else if (inString && char === stringChar) {
+                    inString = false;
+                    stringChar = '';
+                } else if (!inString) {
+                    if (char === '<') depth++;
+                    else if (char === '>') depth--;
+                    else if (char === ',' && depth === 0) {
+                        if (current.trim()) {
+                            result.push(parseExpression(current.trim()));
+                        }
+                        current = '';
+                        continue;
+                    }
+                }
+                
+                current += char;
+            }
+            
+            if (current.trim()) {
+                result.push(parseExpression(current.trim()));
+            }
+            
+            return result;
+        }
+
+        function displayTree() {
+            const treeView = document.getElementById('treeView');
+            treeView.innerHTML = '';
+            treeView.classList.remove('hidden');
+            
+            const rootNode = createNodeElement(parsedStructure, 0);
+            treeView.appendChild(rootNode);
+        }
+
+        function createNodeElement(node, depth) {
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'node';
+            
+            if (node.type === 'function') {
+                const header = document.createElement('div');
+                header.className = 'node-header';
+                header.onclick = () => toggleNode(node.id);
+                
+                const hasChildren = node.parameters && node.parameters.length > 0;
+                const expandIcon = document.createElement('span');
+                expandIcon.className = 'expand-icon';
+                expandIcon.textContent = hasChildren ? '▼' : '•';
+                expandIcon.id = `icon-${node.id}`;
+                
+                const funcName = document.createElement('span');
+                funcName.className = 'function-name';
+                funcName.textContent = node.name;
+                
+                const params = document.createElement('span');
+                params.className = 'parameters';
+                
+                // Show simple parameters inline, complex ones as children
+                const simpleParams = node.parameters?.filter(p => p.type === 'value') || [];
+                if (simpleParams.length > 0) {
+                    const paramGroups = simpleParams.map(p => {
+                        const originalValue = p.originalValue || p.value;
+                        const isModified = p.value !== originalValue;
+                        const btnClass = isModified ? 'expand-btn modified' : 'expand-btn';
+                        
+                        return `<span class="parameter-group">
+                            <input type="text" class="parameter-input" value="${escapeHtml(p.value)}" 
+                             onchange="updateParameterWithTracking('${p.id}', this.value)" 
+                             data-original="${escapeHtml(originalValue)}">
+                            <button class="${btnClass}" onclick="window.tryExpandParameter('${p.id}')">↗</button>
+                         </span>`;
+                    });
+                    
+                    params.innerHTML = paramGroups.join(' ');
+                }
+                
+                header.appendChild(expandIcon);
+                header.appendChild(funcName);
+                header.appendChild(params);
+                nodeDiv.appendChild(header);
+                
+                // Create children container for complex parameters
+                const complexParams = node.parameters?.filter(p => p.type === 'function') || [];
+                if (complexParams.length > 0) {
+                    const children = document.createElement('div');
+                    children.className = 'node-children';
+                    children.id = `children-${node.id}`;
+                    
+                    // Apply saved collapsed state
+                    const shouldBeCollapsed = collapsedNodes.has(node.id);
+                    if (shouldBeCollapsed) {
+                        children.classList.add('hidden');
+                        expandIcon.textContent = '▶';
+                    }
+                    
+                    complexParams.forEach(child => {
+                        children.appendChild(createNodeElement(child, depth + 1));
+                    });
+                    
+                    nodeDiv.appendChild(children);
+                }
+            } else {
+                // Value node
+                const header = document.createElement('div');
+                header.className = 'node-header';
+                
+                const expandIcon = document.createElement('span');
+                expandIcon.className = 'expand-icon';
+                expandIcon.textContent = '•';
+                
+                const valueGroup = document.createElement('span');
+                valueGroup.className = 'parameter-group';
+                
+                const value = document.createElement('input');
+                value.type = 'text';
+                value.className = 'parameter-input';
+                value.value = node.value;
+                value.setAttribute('data-original', node.originalValue || node.value);
+                value.onchange = () => updateParameterWithTracking(node.id, value.value);
+                value.style.minWidth = '200px';
+                
+                const isModified = node.value !== (node.originalValue || node.value);
+                const expandBtn = document.createElement('button');
+                expandBtn.className = isModified ? 'expand-btn modified' : 'expand-btn';
+                expandBtn.innerHTML = '↗';
+                expandBtn.onclick = () => window.tryExpandParameter(node.id);
+                expandBtn.title = 'Try to expand as nested code';
+                
+                valueGroup.appendChild(value);
+                valueGroup.appendChild(expandBtn);
+                header.appendChild(valueGroup);
+                nodeDiv.appendChild(header);
+            }
+            
+            return nodeDiv;
+        }
+
+        function toggleNode(nodeId) {
+            const children = document.getElementById(`children-${nodeId}`);
+            const icon = document.getElementById(`icon-${nodeId}`);
+            
+            if (children) {
+                const isCurrentlyHidden = children.classList.contains('hidden');
+                
+                if (isCurrentlyHidden) {
+                    children.classList.remove('hidden');
+                    icon.textContent = '▼';
+                    collapsedNodes.delete(nodeId);
+                } else {
+                    children.classList.add('hidden');
+                    icon.textContent = '▶';
+                    collapsedNodes.add(nodeId);
+                }
+            }
+        }
+
+        // Track original values and update parameters
+        function updateParameterWithTracking(nodeId, newValue) {
+            updateNodeValue(parsedStructure, nodeId, newValue);
+            
+            // Update button appearance based on modification status
+            const inputElement = document.querySelector(`input[onchange*="${nodeId}"]`);
+            if (inputElement) {
+                const originalValue = inputElement.getAttribute('data-original');
+                const expandBtn = inputElement.nextElementSibling;
+                if (expandBtn && expandBtn.classList.contains('expand-btn')) {
+                    if (newValue !== originalValue) {
+                        expandBtn.classList.add('modified');
+                    } else {
+                        expandBtn.classList.remove('modified');
+                    }
+                }
+            }
+        }
+
+        function updateParameter(nodeId, newValue) {
+            updateNodeValue(parsedStructure, nodeId, newValue);
+        }
+
+        // Initialize original values when parsing
+        function initializeOriginalValues(node) {
+            if (!node.originalValue) {
+                node.originalValue = node.value;
+            }
+            if (node.parameters) {
+                node.parameters.forEach(initializeOriginalValues);
+            }
+        }
+
+        function updateNodeValue(node, targetId, newValue) {
+            if (node.id === targetId) {
+                node.value = newValue;
+                return true;
+            }
+            
+            if (node.parameters) {
+                for (let param of node.parameters) {
+                    if (updateNodeValue(param, targetId, newValue)) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function exportCode() {
+            if (!parsedStructure) {
+                showError('Please parse some code first.');
+                return;
+            }
+            
+            let newStatement;
+            if (codeFormat === 'using') {
+                newStatement = `using ${parsedStructure.variableName} = ${buildExpression(parsedStructure)};`;
+            } else if (codeFormat === 'styleptr') {
+                newStatement = `StylePtr<${buildExpression(parsedStructure)}>()`;
+            }
+            
+            const finalCode = codePrefix + newStatement + codeSuffix;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(finalCode).then(() => {
+                // Show success feedback
+                const btn = document.querySelector('.export-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = 'linear-gradient(45deg, #3498db, #2980b9)';
+                }, 2000);
+            }).catch(err => {
+                showError('Failed to copy to clipboard: ' + err.message);
+            });
+        }
+
+        function buildExpression(node) {
+            if (node.type === 'value') {
+                return node.value;
+            } else if (node.type === 'function') {
+                const params = node.parameters?.map(p => buildExpression(p)).join(',') || '';
+                return `${node.name}<${params}>`;
+            }
+            return '';
+        }
+
+        function clearForm() {
+            document.getElementById('codeInput').value = '';
+            document.getElementById('treeView').innerHTML = '';
+            document.getElementById('treeView').classList.add('hidden');
+            clearError();
+            
+            // Reset all variables
+            parsedStructure = null;
+            originalCode = '';
+            codePrefix = '';
+            codeSuffix = '';
+            codeFormat = '';
+            collapsedNodes.clear(); // Clear collapsed state
+        }
+
+        // Form starts blank - no example code loaded
+        window.onload = function() {
+            // Ready to go
+        };
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
