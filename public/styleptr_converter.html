@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StylePtr Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .convert-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .convert-btn:enabled:hover {
+            background-color: #0056b3;
+        }
+        
+        .convert-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .clear-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .clear-btn:hover {
+            background-color: #545b62;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .invalid {
+            border-color: #dc3545;
+        }
+        
+        .valid {
+            border-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>StylePtr Converter</h1>
+        
+        <form id="converterForm">
+            <div class="form-group">
+                <label for="functionName">Function Name:</label>
+                <input type="text" id="functionName" name="functionName" required>
+                <div class="error" id="functionNameError">Function name is required</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="styleCode">StylePtr Code:</label>
+                <textarea id="styleCode" name="styleCode" placeholder="Paste your StylePtr<...>() code here..."></textarea>
+                <div class="error" id="styleCodeError">Code must match StylePtr<...>() pattern</div>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" id="convertBtn" class="convert-btn" disabled>Convert to Function</button>
+                <button type="button" id="clearBtn" class="clear-btn">Clear</button>
+            </div>
+            
+            <div class="success" id="successMsg">
+                Code converted and copied to clipboard!
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const functionNameInput = document.getElementById('functionName');
+        const styleCodeInput = document.getElementById('styleCode');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const functionNameError = document.getElementById('functionNameError');
+        const styleCodeError = document.getElementById('styleCodeError');
+        const successMsg = document.getElementById('successMsg');
+        
+        // Pattern to match StylePtr<...>()
+        const stylePtrPattern = /^StylePtr<.*>\(\)$/s;
+        let stylePtrCodePasted = false;
+        
+        function validateInputs() {
+            const functionName = functionNameInput.value.trim();
+            const styleCode = styleCodeInput.value.trim();
+            
+            let isValid = true;
+            
+            // Only validate function name if StylePtr code has been pasted
+            if (stylePtrCodePasted) {
+                if (!functionName) {
+                    functionNameInput.classList.add('invalid');
+                    functionNameInput.classList.remove('valid');
+                    functionNameError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    functionNameInput.classList.remove('invalid');
+                    functionNameInput.classList.add('valid');
+                    functionNameError.style.display = 'none';
+                }
+                
+                // Validate StylePtr pattern only after code is pasted
+                if (!styleCode || !stylePtrPattern.test(styleCode)) {
+                    styleCodeInput.classList.add('invalid');
+                    styleCodeInput.classList.remove('valid');
+                    styleCodeError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    styleCodeInput.classList.remove('invalid');
+                    styleCodeInput.classList.add('valid');
+                    styleCodeError.style.display = 'none';
+                }
+            } else {
+                // Clear any error states before validation
+                functionNameInput.classList.remove('invalid', 'valid');
+                styleCodeInput.classList.remove('invalid', 'valid');
+                functionNameError.style.display = 'none';
+                styleCodeError.style.display = 'none';
+            }
+            
+            convertBtn.disabled = !isValid || !stylePtrCodePasted;
+            return isValid;
+        }
+        
+        function convertCode() {
+            if (!validateInputs()) return;
+            
+            const functionName = functionNameInput.value.trim();
+            let styleCode = styleCodeInput.value.trim();
+            
+            // Remove StylePtr< from beginning
+            styleCode = styleCode.replace(/^StylePtr</, '');
+            
+            // Replace >>() at the end with the new ending
+            const newEnding = ',EffectSequence<EFFECT_POWERSAVE,AlphaL<Black,Int<8192>>,AlphaL<Black,Int<16384>>,AlphaL<Black,Int<24576>>,AlphaL<Black,Int<0>>>,TransitionEffectL<TrConcat<TrJoin<TrDelay<2000>,TrInstant>,AlphaL<Mix<BatteryLevel,Red,Green>,Bump<BatteryLevel,Int<10000>>>,TrFade<300>>,EFFECT_BATTERY_LEVEL>,TransitionEffectL<TrConcat<TrExtend<2000,TrWipe<100>>,AlphaL<DodgerBlue,SmoothStep<VolumeLevel,Int<-1>>>,TrFade<300>>,EFFECT_VOLUME_LEVEL>>;';
+            styleCode = styleCode.replace(/>>\(\)$/, newEnding);
+            
+            // Remove comments (// style comments)
+            styleCode = styleCode.replace(/\/\/.*$/gm, '');
+            
+            // Remove all spaces, returns, and newlines
+            styleCode = styleCode.replace(/[ \r\n]+/g, '');
+            
+            // Add the using statement with header and footer
+            const result = `/*--------------------------------- ${functionName} ------------------------*/
+using ${functionName} = ${styleCode}
+/*
+Add to preset as StylePtr<${functionName}>()
+--------------------------------------------------------------------------*/`;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(result).then(() => {
+                successMsg.style.display = 'block';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            }).catch(err => {
+                alert('Failed to copy to clipboard: ' + err.message);
+            });
+        }
+        
+        function clearForm() {
+            functionNameInput.value = '';
+            styleCodeInput.value = '';
+            functionNameInput.classList.remove('invalid', 'valid');
+            styleCodeInput.classList.remove('invalid', 'valid');
+            functionNameError.style.display = 'none';
+            styleCodeError.style.display = 'none';
+            successMsg.style.display = 'none';
+            stylePtrCodePasted = false;
+            convertBtn.disabled = true;
+        }
+        
+        // Event listeners
+        functionNameInput.addEventListener('input', validateInputs);
+        styleCodeInput.addEventListener('input', () => {
+            if (styleCodeInput.value.trim()) {
+                stylePtrCodePasted = true;
+            }
+            validateInputs();
+        });
+        convertBtn.addEventListener('click', convertCode);
+        clearBtn.addEventListener('click', clearForm);
+        
+        // Add Enter key support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !convertBtn.disabled) {
+                convertCode();
+            }
+        });
+        
+        // Initial validation
+        validateInputs();
+    </script>
+</body>
+</html>

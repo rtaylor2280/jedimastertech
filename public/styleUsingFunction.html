@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Style code to Using Function</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <style>
+        .container {
+            max-width: 900px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+		
+		input[type="text"] {
+			width: 100%;
+			padding: 12px 16px;
+			border: 2px solid rgba(255, 255, 255, 0.2);
+			border-radius: 10px;
+			background: rgba(255, 255, 255, 0.1);
+			color: #ffffff;
+			font-size: 16px;
+			transition: all 0.3s ease;
+		}
+
+		input[type="text"]:focus {
+			outline: none;
+			border-color: #00d4ff;
+			box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+			background: rgba(255, 255, 255, 0.15);
+		}
+
+		input::placeholder {
+			color: rgba(255, 255, 255, 0.5);
+		}
+
+        .checkbox-group {
+            display: block; 
+			background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .checkbox-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #00d4ff;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #00d4ff;
+            transform: scale(1.2);
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+            display: inline;
+            color: #e0e0e0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .convert-btn {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+        }
+
+        .convert-btn:enabled:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .convert-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .clear-btn {
+            background: linear-gradient(45deg, #6c757d, #545b62);
+            color: white;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success {
+            background: rgba(39, 174, 96, 0.2);
+            color: #2ecc71;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .invalid {
+            border-color: #ff6b6b !important;
+        }
+
+        .valid {
+            border-color: #2ecc71 !important;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            display: none;
+            animation: slideIn 0.3s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-code {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #e0e0e0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Style code to Using Function</h1>
+        
+        <form id="converterForm">
+            <div class="form-group">
+                <label for="functionName">Function Name:</label>
+                <input type="text" id="functionName" name="functionName" placeholder="Enter function name..." required>
+                <div class="error" id="functionNameError">Function name is required</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="styleCode">StylePtr Code:</label>
+                <textarea id="styleCode" name="styleCode" placeholder="Paste your StylePtr<...>() code here..."></textarea>
+                <div class="error" id="styleCodeError">Code must match StylePtr<...>() pattern</div>
+            </div>
+            
+            <div class="checkbox-group">
+                <h3>Additional Features:</h3>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="addPowersave" checked>
+                    <label for="addPowersave">Add Powersave Effect</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="addBattery" checked>
+                    <label for="addBattery">Add Battery Level Indicator</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="addVolume" checked>
+                    <label for="addVolume">Add Volume Level Indicator</label>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" id="convertBtn" class="convert-btn" disabled>Convert to Function</button>
+                <button type="button" id="clearBtn" class="clear-btn">Clear</button>
+            </div>
+            
+            <div class="success" id="successMsg">
+                ✓ Code converted and copied to clipboard!
+            </div>
+        </form>
+        
+        <div class="result-container" id="resultContainer">
+            <div class="result-code" id="resultCode"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Created by <span class="creator">JediMasterTech</span>
+    </div>
+
+    <script>
+        const functionNameInput = document.getElementById('functionName');
+        const styleCodeInput = document.getElementById('styleCode');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const functionNameError = document.getElementById('functionNameError');
+        const styleCodeError = document.getElementById('styleCodeError');
+        const successMsg = document.getElementById('successMsg');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultCode = document.getElementById('resultCode');
+        
+        // Checkbox elements
+        const addPowersaveCheck = document.getElementById('addPowersave');
+        const addBatteryCheck = document.getElementById('addBattery');
+        const addVolumeCheck = document.getElementById('addVolume');
+        
+        // Pattern to match StylePtr<...>()
+        const stylePtrPattern = /^StylePtr<.*>\(\)$/s;
+        let stylePtrCodePasted = false;
+        
+        // Tail components
+        const STYLE_END = '>;';
+        
+        const POWERSAVE_TAIL = 'EffectSequence<EFFECT_POWERSAVE,AlphaL<Black,Int<8192>>,AlphaL<Black,Int<16384>>,AlphaL<Black,Int<24576>>,AlphaL<Black,Int<0>>>';
+        
+        const BATTERY_TAIL = 'TransitionEffectL<TrConcat<TrJoin<TrDelay<2000>,TrInstant>,AlphaL<Mix<BatteryLevel,Red,Green>,Bump<BatteryLevel,Int<10000>>>,TrFade<300>>,EFFECT_BATTERY_LEVEL>';
+        
+        const VOLUME_TAIL = 'TransitionEffectL<TrConcat<TrExtend<2000,TrWipe<100>>,AlphaL<DodgerBlue,SmoothStep<VolumeLevel,Int<-1>>>,TrFade<300>>,EFFECT_VOLUME_LEVEL>';
+        
+        function buildTail() {
+            const features = [];
+            if (addPowersaveCheck.checked) features.push(POWERSAVE_TAIL);
+            if (addBatteryCheck.checked) features.push(BATTERY_TAIL);
+            if (addVolumeCheck.checked) features.push(VOLUME_TAIL);
+            
+            if (features.length > 0) {
+                return ',' + features.join(',') + STYLE_END;
+            } else {
+                return STYLE_END;  // Just close if no features selected
+            }
+        }
+        
+        function validateInputs() {
+            const functionName = functionNameInput.value.trim();
+            const styleCode = styleCodeInput.value.trim();
+            
+            let isValid = true;
+            
+            // Only validate function name if StylePtr code has been pasted
+            if (stylePtrCodePasted) {
+                if (!functionName) {
+                    functionNameInput.classList.add('invalid');
+                    functionNameInput.classList.remove('valid');
+                    functionNameError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    functionNameInput.classList.remove('invalid');
+                    functionNameInput.classList.add('valid');
+                    functionNameError.style.display = 'none';
+                }
+                
+                // Validate StylePtr pattern only after code is pasted
+                if (!styleCode || !stylePtrPattern.test(styleCode)) {
+                    styleCodeInput.classList.add('invalid');
+                    styleCodeInput.classList.remove('valid');
+                    styleCodeError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    styleCodeInput.classList.remove('invalid');
+                    styleCodeInput.classList.add('valid');
+                    styleCodeError.style.display = 'none';
+                }
+            } else {
+                // Clear any error states before validation
+                functionNameInput.classList.remove('invalid', 'valid');
+                styleCodeInput.classList.remove('invalid', 'valid');
+                functionNameError.style.display = 'none';
+                styleCodeError.style.display = 'none';
+            }
+            
+            convertBtn.disabled = !isValid || !stylePtrCodePasted;
+            return isValid;
+        }
+        
+        function convertCode() {
+            if (!validateInputs()) return;
+            
+            const functionName = functionNameInput.value.trim();
+            let styleCode = styleCodeInput.value.trim();
+            
+            // Remove StylePtr< from beginning
+            styleCode = styleCode.replace(/^StylePtr</, '');
+            
+            // Remove comments (// style comments)
+            styleCode = styleCode.replace(/\/\/.*$/gm, '');
+            
+            // Remove all spaces, returns, and newlines
+            styleCode = styleCode.replace(/[ \r\n]+/g, '');
+            
+            // Build the tail based on selected options
+            const tail = buildTail();
+            
+            // Replace >>() at the end with the dynamically built tail
+            styleCode = styleCode.replace(/>>\(\)$/, tail);
+            
+            // Add the using statement with header and footer
+            const result = `/*--------------------------------- ${functionName} ------------------------*/
+using ${functionName} = ${styleCode}
+/*
+Add to preset as StylePtr<${functionName}>()
+--------------------------------------------------------------------------*/`;
+            
+            // Display the result
+            resultCode.textContent = result;
+            resultContainer.style.display = 'block';
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(result).then(() => {
+                successMsg.style.display = 'block';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            }).catch(err => {
+                alert('Failed to copy to clipboard: ' + err.message);
+            });
+        }
+        
+        function clearForm() {
+            functionNameInput.value = '';
+            styleCodeInput.value = '';
+            functionNameInput.classList.remove('invalid', 'valid');
+            styleCodeInput.classList.remove('invalid', 'valid');
+            functionNameError.style.display = 'none';
+            styleCodeError.style.display = 'none';
+            successMsg.style.display = 'none';
+            stylePtrCodePasted = false;
+            convertBtn.disabled = true;
+            
+            // Reset checkboxes to default (checked)
+            addPowersaveCheck.checked = true;
+            addBatteryCheck.checked = true;
+            addVolumeCheck.checked = true;
+            
+            // Hide result container
+            resultContainer.style.display = 'none';
+            resultCode.textContent = '';
+        }
+        
+        // Event listeners
+        functionNameInput.addEventListener('input', validateInputs);
+        styleCodeInput.addEventListener('input', () => {
+            if (styleCodeInput.value.trim()) {
+                stylePtrCodePasted = true;
+            }
+            validateInputs();
+        });
+        convertBtn.addEventListener('click', convertCode);
+        clearBtn.addEventListener('click', clearForm);
+        
+        // Add Enter key support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !convertBtn.disabled) {
+                convertCode();
+            }
+        });
+        
+        // Initial validation
+        validateInputs();
+    </script>
+</body>
+</html>

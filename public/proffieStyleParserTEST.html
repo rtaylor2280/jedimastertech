@@ -1,0 +1,31 @@
+        <div class="input-section">
+            <label for="codeInput">Paste your Proffie style code:</label>
+            <textarea id="codeInput" placeholder="Paste your using Variable = Expression; or StylePtr<Expression>() code here"></textarea>
+            <br><br>
+            
+            <div style="display: flex; align-items: center; gap: 15px; margin: 15px 0;">
+                <div>
+                    <label for="nameInput" style="margin-bottom: 5px;">Name:</label>
+                    <input type="text" id="nameInput" placeholder="Enter style name" 
+                           style="padding: 8px 12px; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 8px; background: rgba(255, 255, 255, 0.1); color: #ffffff; font-size: 14px; width: 200px;">
+                </div>
+                
+                <div>
+                    <label style="margin-bottom: 5px; display: block;">Export Format:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                            <input type="radio" name="exportFormat" value="style" id="styleRadio" checked>
+                            <span>Style</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                            <input type="radio" name="exportFormat" value="using" id="usingRadio">
+                            <span>Using</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="parse-btn" onclick="parseCode()">Parse Structure</button>
+            <button class="export-btn" onclick="exportCode()">Copy Modified Code</button>
+            <button class="parse-btn" onclick="clearForm()" style="background: linear-gradient(45deg, #e74c3c, #c0392b); margin-left: 10px;">Clear</button>
+        </div>
